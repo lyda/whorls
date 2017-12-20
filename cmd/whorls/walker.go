@@ -20,15 +20,14 @@ import (
 
 // Whorls captures the mapping of file name to fingerprinted file name
 type Whorls struct {
-	Name  string
-	Whorl string
+	Name, Whorl string
 }
 
 // Walker is the data structure for walking the source trees.
 type Walker struct {
-	Out      string
-	Mappings chan Whorls
-	Done     chan bool
+	Out, Package, NotFound, GoSrc string
+	Mappings                      chan Whorls
+	Done                          chan bool
 }
 
 func makeHash(path string) string {
@@ -72,11 +71,11 @@ func (w Walker) GenerateWhorl() func(string, os.FileInfo, error) error {
 			dotsplit := strings.Split(slashless, ".")
 			if len(dotsplit) > 1 {
 				whorl = fmt.Sprintf("%s/%s-%s.%s",
-					*out, strings.Join(dotsplit[:len(dotsplit)-1], "."),
+					w.Out, strings.Join(dotsplit[:len(dotsplit)-1], "."),
 					digest, dotsplit[len(dotsplit)-1])
 			} else {
 				whorl = fmt.Sprintf("%s/%s-%s",
-					*out, digest, slashless)
+					w.Out, digest, slashless)
 			}
 			copyFile(whorl, path)
 			w.Mappings <- Whorls{Name: path, Whorl: whorl}
@@ -88,10 +87,10 @@ func (w Walker) GenerateWhorl() func(string, os.FileInfo, error) error {
 // GenerateSource creates the source file.
 func (w Walker) GenerateSource() {
 	wv := WhorlItValues{
-		Command:  "",
-		Package:  *pkg,
-		NotFound: "TODO"}
-	if gosrcF, err := os.Create(*gosrc); err != nil {
+		Command:  strings.Join(os.Args, " "),
+		Package:  w.Package,
+		NotFound: w.NotFound}
+	if gosrcF, err := os.Create(w.GoSrc); err != nil {
 		log.Fatalf("FATAL: Can't open file: %s", err.Error())
 	} else {
 		template.Must(template.New("prefix").

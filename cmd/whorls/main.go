@@ -16,10 +16,11 @@ import (
 )
 
 var (
-	out   = flag.String("o", "assets", "directory where assets go")
-	pkg   = flag.String("p", "assets", "name of the package")
-	gosrc = flag.String("f", "generated-assets.go", "generated file name")
-	clear = flag.Bool("clear", false,
+	out      = flag.String("o", "assets", "directory where assets go")
+	pkg      = flag.String("p", "assets", "name of the package")
+	gosrc    = flag.String("f", "generated-assets.go", "generated file name")
+	notfound = flag.String("not-found", "", "name if requested whorl missing")
+	clear    = flag.Bool("clear", false,
 		"delete contents of <out> dir first (default false)")
 )
 
@@ -44,7 +45,14 @@ func main() {
 
 	prepOutDir()
 
-	w := Walker{Mappings: make(chan Whorls), Done: make(chan bool)}
+	w := Walker{
+		Out:      *out,
+		Package:  *pkg,
+		NotFound: *notfound,
+		GoSrc:    *gosrc,
+		Mappings: make(chan Whorls),
+		Done:     make(chan bool),
+	}
 
 	go w.GenerateSource()
 	for _, src := range flag.Args() {
