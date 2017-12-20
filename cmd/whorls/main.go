@@ -16,6 +16,7 @@ import (
 )
 
 var (
+	here     = flag.String("C", "", "change to this directory first")
 	out      = flag.String("o", "assets", "directory where assets go")
 	pkg      = flag.String("p", "assets", "name of the package")
 	gosrc    = flag.String("f", "generated-assets.go", "generated file name")
@@ -42,6 +43,12 @@ func main() {
 		flag.PrintDefaults()
 	}
 	flag.Parse()
+
+	if len(*here) > 0 {
+		if err := os.Chdir(*here); err != nil {
+			log.Fatalf("Couldn't change dir per -C '%s' (%s)", *here, err)
+		}
+	}
 
 	prepOutDir()
 
