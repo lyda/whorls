@@ -17,15 +17,15 @@ var (
 
 package {{.Package}}
 
+// WhorlIt will convert an asset path to a fingerprinted path.
 func WhorlIt(path string) string {
 	if value, ok := generatedWhorls[path]; ok {
 		return generatedWhorls[path]
-	} else {
-		return "{{.NotFound}}"
 	}
+	return "{{.NotFound}}"
 }
 
-generatedWhorls = map[string]string{
+var generatedWhorls = map[string]string{
 `
 	sourceSuffix = "}\n"
 )
