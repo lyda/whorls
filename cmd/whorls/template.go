@@ -20,7 +20,7 @@ package {{.Package}}
 // WhorlIt will convert an asset path to a fingerprinted path.
 func WhorlIt(path string) string {
 	if value, ok := generatedWhorls[path]; ok {
-		return generatedWhorls[path]
+		return value
 	}
 	return "{{.NotFound}}"
 }
